@@ -1,0 +1,36 @@
+#heyoyaAdmin .invisible{
+	display: none !important;
+}
+
+#heyoyaAdmin h2{
+	padding-top: 10px;
+}
+
+#heyoyaAdmin table{
+	margin-bottom: 20px;
+}
+
+#heyoyaAdmin input[type="submit"]{
+	cursor:pointer
+}
+
+#heyoyaAdmin .alternate{
+  line-height: 28px;
+  vertical-align: middle;
+  display: inline-block;
+  padding-left: 10px;
+}
+
+#heyoyaAdmin .alternate a{
+	cursor:pointer;
+}
+
+#heyoyaAdmin .updated span {
+  display: block;
+  padding: 5px;
+}
+
+#heyoyaAdmin .updated {
+  margin-left: 0;
+}
+
