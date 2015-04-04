@@ -7,11 +7,13 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The Heyoya Voice Reviews & Comments platform replaces your WordPress comment system with your reviews/comments hosted and powered by Heyoya.
+Heyoya is a revolutionary voice reviews and comments platform that is transforming the way people interact with products and content online!
 
 == Description ==
 
-[Heyoya](https://www.heyoya.com/) is a revolutionary voice reviews and comments platform that is transforming the way people interact with products and content online!
+Across the world, millions of comments and reviews are generated online every day. These text comments are inherently limited in their level of expressiveness and as a result this content doesn't reach its full potential for websites to drive traffic and maximize user engagement. 
+
+[Heyoya's](https://www.heyoya.com/) is transforming the way people comment and review products with our revolutionary real time voice reviews and comments platform. Whether you are an e-store owner, blogger or content provider, Heyoya has a solution for you. Our platform will give your customers and audience a voice, creating more meaningful interaction, increased engagement, and improve the quality of content.
 
 = Heyoya for WordPress =
 
