@@ -1,7 +1,7 @@
 <?php
 class AdminOptionsPage{
 
-	public function __construct(){
+	public function __construct(){		
 		add_action('admin_menu', array($this, 'heyoya_menu') );		
 		add_action('admin_enqueue_scripts', array($this, 'load_admin_scripts') );
 		add_action('admin_init', array($this, 'heyoya_admin_init') );
@@ -10,10 +10,9 @@ class AdminOptionsPage{
 		add_action( 'wp_ajax_purchased', array($this, 'heyoya_purchased') );
 		add_action( 'wp_ajax_is_store', array($this, 'heyoya_is_store') );
 		add_action( 'wp_ajax_design_mode', array($this, 'heyoya_design_mode') );
-		add_action( 'wp_ajax_placement_path', array($this, 'heyoya_placement_path') );				
+		add_action( 'wp_ajax_placement_path', array($this, 'heyoya_placement_path') );		
 	}
 	
-
 	function heyoya_menu() {
 		add_comments_page( 'Heyoya Options', 'Heyoya', 'manage_options', 'heyoya-options', array($this, 'set_heyoya_options') );
 	}
@@ -21,7 +20,11 @@ class AdminOptionsPage{
 	function load_admin_scripts($hook){
 		if ( 'comments_page_heyoya-options' != $hook ) {
 			return;
-		}	
+		}			
+
+		wp_register_script( 'report_script', plugins_url( '/js/report.js', __FILE__ ) );
+		wp_enqueue_script( 'report_script', plugins_url( '/js/report.js', __FILE__ ), array( 'jQuery') );
+		
 		
 		if (!is_heyoya_installed()){
 			wp_register_script( 'loggedout_script', plugins_url( '/js/loggedout.js', __FILE__ ) );
@@ -67,7 +70,6 @@ class AdminOptionsPage{
 		$options = get_option('heyoya_options');
 		echo "<input class='signup_fullname' name='heyoya_options[signup_fullname]' size='30' type='text' value='" . (isset($options["signup_fullname"])?$options["signup_fullname"]:"") . "' />";
 	}
-
 	
 	function admin_password_string() {
 		$options = get_option('heyoya_options');
@@ -76,7 +78,8 @@ class AdminOptionsPage{
 	
 	function login_user($options, $email, $password){
 		if ( $email == null || trim($email) == "" || !is_email($email) || ( ( $password == null || trim($password) == "" ) && ( $options == null || $options["apikey"] == null ) ) )
-			return;							
+			return;
+								
 
 		$time = time();		
 		$email = trim($email);
@@ -86,10 +89,10 @@ class AdminOptionsPage{
 			$password = trim($password);
 			
 			
-			$args = array ("body" => array ("e" => $email,"p" => $password,"t" => $time), "sslverify" => false);
+			$args = array ("body" => array ("e" => $email,"p" => $password,"t" => $time), "sslverify" => false, "timeout" => 60);
 			
 		} else {			
-			$args = array('body' => array('e' =>  $email,'ak' => $options["apikey"],'t' =>  $time), "sslverify" => false);
+			$args = array('body' => array('e' =>  $email,'ak' => $options["apikey"],'t' =>  $time), "sslverify" => false, "timeout" => 60);
 		}
 		
 		$response = wp_remote_post( $url, $args );	
@@ -110,7 +113,7 @@ class AdminOptionsPage{
 		$time = time(); 
 
 		$url = 'https://admin.heyoya.com/client-admin/rwak.heyoya';
-		$args = array('body' => array('e' => $email,'p' => $password,'n' => $fullname,'t' => $time), "sslverify" => false);
+		$args = array('body' => array('e' => $email,'p' => $password,'n' => $fullname,'t' => $time), "sslverify" => false, "timeout" => 60);
 		
 		$response = wp_remote_post( $url, $args );
 
@@ -122,7 +125,7 @@ class AdminOptionsPage{
 	
 	function login_signup_handle_response($options, $response, $email, $last_login_time){
 		if ($response == null)
-			return;		
+			return;	
 		
 		$response_code = wp_remote_retrieve_response_code($response);
 		if ($response_code == "" || $response_code != 200){
@@ -132,17 +135,15 @@ class AdminOptionsPage{
 			return;
 		}
 		
-		$body = wp_remote_retrieve_body( $response );		
+		$body = wp_remote_retrieve_body( $response );
 		if ($body == null || trim($body) == "" || preg_match('/^-[0-9]{1}$/i', trim($body))){			
+			
 			$options["error_raised"] = true;			
 			
 			if ($body == null || trim($body) == "")
 				$options["error_code"] = -1;
-			else { 	
+			else  	
 				$options["error_code"] = intval(trim($body));
-				if ($options["error_code"] == -4)
-					$options["error_code"] = -1;
-			}
 			
 // 			$options["error_code"] = $body;
 			
@@ -190,7 +191,7 @@ class AdminOptionsPage{
 		
 		$time = time();
 		$url = 'https://admin.heyoya.com/client-admin/gsbak.heyoya';		
-		$args = array ("body" => array ("ak" => trim($apiKey),"t" => $time), "sslverify" => false);
+		$args = array ("body" => array ("ak" => trim($apiKey),"t" => $time), "sslverify" => false, "timeout" => 60);
 			
 		$response = wp_remote_post( $url, $args );
 				
@@ -236,7 +237,7 @@ class AdminOptionsPage{
 	}
 	
 	
-	function heyoya_options_validate($input) {				
+	function heyoya_options_validate($input) {
 		$input = $_POST["heyoya_options"];
 		$options = get_option('heyoya_options', null);			
 		
@@ -453,7 +454,7 @@ class AdminOptionsPage{
 	function set_heyoya_options() {
 		if ( !current_user_can( 'manage_options' ) )  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
-		}
+		}		
 		
 		$session_valid = false;
 		$error_raised = false;
@@ -462,10 +463,12 @@ class AdminOptionsPage{
 		$options = get_option('heyoya_options', null);
 		
 		if ($options != null && isset($options["error_raised"]) && trim($options["error_raised"]) != "" && isset($options["last_method"])){
+			
+				
 			$error_raised = true;
 			$last_method = $options["last_method"];
 			$error_code = $options["error_code"];
-			
+
 			$options["error_raised"] = false;
 			$options["last_method"] = null;
 			$options["error_code"] = null;
@@ -477,27 +480,42 @@ class AdminOptionsPage{
 			$last_login_time = intval($options["last_login_time"], 10);
 			if ( (time() - $last_login_time) < 10800 )
 				$session_valid = true;
-		}
+		}	
 		
 		$is_heyoya_installed = is_heyoya_installed();
 		
-		if (!$error_raised && $is_heyoya_installed && !$session_valid){
+		if (!$error_raised && $is_heyoya_installed && !$session_valid){						
 			$this->login_user($options, $options["login_email"], null);
-			$is_heyoya_installed = is_heyoya_installed();
+			
+			$options = get_option('heyoya_options', null);					
+			
+			if ($options != null && isset($options["error_raised"])){
+				if (isset($options["apikey"]))
+					$options["apikey"] = null; 
 				
-			if (isset($options["error_raised"])){
+				
 				$session_valid = false;
-// 				$error_raised = true;
-				$last_method = $options["last_method"];
-// 				$error_code = $options["error_code"];
+ 				$error_raised = true;
+				$last_method = "login";
+ 				
+				$error_code = -1000 + intval(trim($options["error_code"]));
 					
 				$options["error_raised"] = false;
 				$options["last_method"] = null;
 				$options["error_code"] = null;
-					
+				
 				update_option("heyoya_options", $options);
 			}				
 		}
+
+		$is_heyoya_installed = is_heyoya_installed();
+		$is_purchased = 0;
+		if (isset($options["purchased"]))
+			$is_purchased = $options["purchased"];
+		
+		
+// 		if ($error_code == null)
+// 			$error_code = 0;
 		
 		if (!$is_heyoya_installed || $error_raised || !$session_valid){
 			//echo '<pre>'; print_r($options); echo '</pre>';
@@ -505,13 +523,13 @@ class AdminOptionsPage{
 		<div id="heyoyaAdmin">
 			<div id="heyoyaSignUpDiv" class="<?php echo $last_method != "login"?"":"invisible" ?>">
 				<h2>Create Heyoya Account</h2>				
-				<div class="updated <?php echo $error_raised?"":"invisible" ?>">
+				<div class="updated <?php echo $error_raised && $error_code != 0?"":"invisible" ?>">
 					<p>
 						<span class="invisible email_invalid">Email address is <strong>invalid</strong></span>
 						<span class="invisible email_missing">Email address is <strong>required</strong></span>
 						<span class="invisible name_missing">Name is <strong>required</strong></span>
 						<span class="invisible password_missing">Password is <strong>required</strong></span>
-						<span class="<?php echo ($error_raised && $error_code == -1)?"":"invisible" ?> general_error">An error has occurred, please try again in a few seconds</span>
+						<span class="<?php echo ($error_raised && ($error_code == -1 || $error_code == -4))?"":"invisible" ?> general_error">An error has occurred, please try again in a few seconds</span>
 						<span class="<?php echo ($error_raised && $error_code == -2)?"":"invisible" ?> general_error">Please make sure to fill the fields below</span>
 						<span class="<?php echo ($error_raised && $error_code == -3)?"":"invisible" ?> general_error">Email already exists</span>						
 					</p>																
@@ -520,17 +538,17 @@ class AdminOptionsPage{
 				<?php settings_fields('heyoya-options'); ?>
 				<?php do_settings_sections('admin-signup'); ?>
 		 
-				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Create account'); ?>" /><span class="alternate">Already registered?&nbsp;&nbsp;<a id="login">Log in!</a></span>
+				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Create account'); ?>"  original_value="<?php esc_attr_e('Create account'); ?>" /><span class="alternate">Already registered?&nbsp;&nbsp;<a id="login">Log in!</a></span>
 				</form>
 			</div> 
 			<div id="heyoyaLoginDiv" class="<?php echo $last_method == "login"?"":"invisible" ?>">
 				<h2>Login with your Heyoya account</h2>			
-				<div class="updated <?php echo $error_raised?"":"invisible" ?>">
+				<div class="updated <?php echo $error_raised && $error_code != 0?"":"invisible" ?>">
 					<p>
 						<span class="invisible email_invalid">Email address is <strong>invalid</strong></span>
 						<span class="invisible email_missing">Email address is <strong>required</strong></span>
 						<span class="invisible password_missing">password is <strong>required</strong></span>
-						<span class="<?php echo ($error_raised && $error_code == -1)?"":"invisible" ?> general_error">Email or password is incorrect</span>
+						<span class="<?php echo ($error_raised && ($error_code == -1 || $error_code == -4))?"":"invisible" ?> general_error">Email or password is incorrect</span>
 						<span class="<?php echo ($error_raised && $error_code == -2)?"":"invisible" ?> general_error">Please make sure to fill the fields below</span>
 						<span class="<?php echo ($error_raised && $error_code == -5)?"":"invisible" ?> general_error">An error has occurred, please try again in a few seconds</span>
 					</p>
@@ -539,13 +557,23 @@ class AdminOptionsPage{
 				<?php settings_fields('heyoya-options'); ?>
 				<?php do_settings_sections('admin-login'); ?>
 				
-				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Log in'); ?>" /><span class="alternate">No account?&nbsp;&nbsp;<a id="createAccount">Sign up!</a></span>
+				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Log in'); ?>" original_value="<?php esc_attr_e('Log in'); ?>" /><span class="alternate">No account?&nbsp;&nbsp;<a id="createAccount">Sign up!</a></span>
 				</form>
 			</div> 
 		</div>
+		
+		<script type="text/javascript">
+			var heyoyaErrorCode = <?php echo $error_code ?>; 
+		</script>
+		
 		<?php } else { 
-			//echo '<pre>'; print_r($options); echo '</pre>';
-			?>			
+		//	echo '<pre>'; print_r($options); echo '</pre>';
+			?>
+			<script type="text/javascript">
+				var heyoyaIsP = <?php echo $is_purchased ?>; 
+			</script>
+			
+						
 			<div id="heyoyaContainer" aa="<?php echo $options["apikey"] ?>"></div>
 		<?php }
 	}

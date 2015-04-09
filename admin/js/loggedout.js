@@ -1,20 +1,49 @@
-loggedOut = function(){
-	var $;
+heyoyaLoggedOut = function(){
+	var $, heyoyaReportService;	
 	var regEmail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-	function init(jqueryObj){
+	
+	function init(jqueryObj, heyoyaReportObj){
 		$ = jqueryObj;
-		
+		heyoyaReportService = heyoyaReportObj;
 		bindEvents();
+
+		
+		initialReport();
+		
+		if (heyoyaErrorCode != undefined && heyoyaErrorCode != 0){
+			heyoyaReportService.report("wp-error-" + heyoyaErrorCode);
+			heyoyaErrorCode = 0;
+		}
 	}
 	
 	function bindEvents(){
 	
-		$("#heyoyaSignUpDiv form").on("submit", function(){			
-			return validateFields($("#heyoyaSignUpDiv"));
+		$("#heyoyaSignUpDiv form").on("submit", function(){
+			$(this).find("input[type=submit]").val("Please wait...");			
+			heyoyaReportService.report("wp-signup-form-submit");
+			
+			if (validateFields($("#heyoyaSignUpDiv"))){								
+				heyoyaReportService.report("wp-signup-form-submit-validation-success", true);
+				return true;
+			} else {
+				$(this).find("input[type=submit]").val($(this).find("input[type=submit]").attr("original_value"));
+				heyoyaReportService.report("wp-signup-form-submit-validation-failure");				
+				return false;
+			}			
 		});
 		
-		$("#heyoyaLoginDiv form").on("submit", function(){			
-			return validateFields($("#heyoyaLoginDiv"));
+		$("#heyoyaLoginDiv form").on("submit", function(){
+			$(this).find("input[type=submit]").val("Please wait...");		
+			heyoyaReportService.report("wp-login-form-submit");
+			
+			if (validateFields($("#heyoyaLoginDiv"))){
+				heyoyaReportService.report("wp-login-form-submit-validation-success", true);
+				return true;
+			} else {
+				$(this).find("input[type=submit]").val($(this).find("input[type=submit]").attr("original_value"));
+				heyoyaReportService.report("wp-login-form-submit-validation-failure");
+				return false;
+			}						 
 		});
 		
 		$("#heyoyaLoginDiv .alternate a").on("click", function(){
@@ -23,6 +52,8 @@ loggedOut = function(){
 			
 			$("#heyoyaLoginDiv").addClass("invisible");
 			$("#heyoyaSignUpDiv").removeClass("invisible");
+			
+			heyoyaReportService.report("wp-change-mode-login2signup");
 		});
 		
 		$("#heyoyaSignUpDiv .alternate a").on("click", function(){
@@ -31,10 +62,17 @@ loggedOut = function(){
 			$("#heyoyaSignUpDiv").addClass("invisible");
 			$("#heyoyaLoginDiv").removeClass("invisible");
 			
-			
+			heyoyaReportService.report("wp-change-mode-signup2login");
 		});
 
 
+	}
+	
+	function initialReport(){
+		if ($("#heyoyaLoginDiv").hasClass("invisible"))
+			heyoyaReportService.report("wp-signup-impression");
+		else
+			heyoyaReportService.report("wp-login-impression");		
 	}
 	
 	function validateFields(baseObj){		
@@ -87,5 +125,6 @@ loggedOut = function(){
 
 
 jQuery(function(){
-	loggedOut.init(jQuery);
+	heyoyaReport.init(jQuery);
+	heyoyaLoggedOut.init(jQuery, heyoyaReport);
 });

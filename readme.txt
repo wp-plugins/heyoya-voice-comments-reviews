@@ -57,6 +57,13 @@ Go to [http://blog.heyoya.com/](http://blog.heyoya.com/)
 
 == Changelog ==
 
+= 1.0.3 - 09/05/2015 =
+* Error reporting improvments for better bug tracking.
+* Increasing request timeouts for slow networks.
+* Uninstall behavior added.
+* Small bug fixes.
+
+
 = 1.0 - 04/05/2015 =
 * Added to Wordpress Platform
 

@@ -4,7 +4,7 @@ Plugin Name: Heyoya Voice Reviews & Comments
 Plugin URI: https://www.heyoya.com/
 Description: Heyoya is a revolutionary voice reviews and comments platform that is transforming the way people interact with products and content online! To get started: 1) Click the "Activate" link to the left of this description, and 2) Go to your Heyoya configuration page, and log in / sign up
 
-Version: 1.0
+Version: 1.0.3
 Author: Heyoya <support@heyoya.com>
 Author URI: https://www.heyoya.com/
 */
