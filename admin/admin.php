@@ -539,6 +539,8 @@ class AdminOptionsPage{
 				<?php do_settings_sections('admin-signup'); ?>
 		 
 				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Create account'); ?>"  original_value="<?php esc_attr_e('Create account'); ?>" /><span class="alternate">Already registered?&nbsp;&nbsp;<a id="login">Log in!</a></span>
+				<br /><br />
+				By creating an account I accept the <a target="_blank" href="https://www.heyoya.com/termsOfUse.html">Terms of Use</a> and recognize that a 'Powered by Heyoya' link will appear on the bottom of my Heyoya widget.				
 				</form>
 			</div> 
 			<div id="heyoyaLoginDiv" class="<?php echo $last_method == "login"?"":"invisible" ?>">
@@ -557,7 +559,7 @@ class AdminOptionsPage{
 				<?php settings_fields('heyoya-options'); ?>
 				<?php do_settings_sections('admin-login'); ?>
 				
-				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Log in'); ?>" original_value="<?php esc_attr_e('Log in'); ?>" /><span class="alternate">No account?&nbsp;&nbsp;<a id="createAccount">Sign up!</a></span>
+				<input class="button-primary button" name="Submit" type="submit" value="<?php esc_attr_e('Log in'); ?>" original_value="<?php esc_attr_e('Log in'); ?>" /><span class="alternate">No account?&nbsp;&nbsp;<a id="createAccount">Sign up!</a></span>				
 				</form>
 			</div> 
 		</div>
